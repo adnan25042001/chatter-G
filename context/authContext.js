@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut as authSignOut } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 
 const UserContext = createContext();
@@ -16,11 +16,16 @@ export const UserProvider = ({ children }) => {
     const authStateChanged = (user) => {
         setIsLoading(true);
         if (!user) {
+            clear();
             return;
         }
         console.log(user);
         setCurrentUser(user);
         setIsLoading(false);
+    };
+
+    const signOut = () => {
+        authSignOut(auth).then(() => clear());
     };
 
     useEffect(() => {
@@ -30,7 +35,13 @@ export const UserProvider = ({ children }) => {
 
     return (
         <UserContext.Provider
-            value={{ currentUser, setCurrentUser, isLoading, setIsLoading }}
+            value={{
+                currentUser,
+                setCurrentUser,
+                isLoading,
+                setIsLoading,
+                signOut,
+            }}
         >
             {children}
         </UserContext.Provider>
