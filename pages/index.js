@@ -1,25 +1,30 @@
 import React, { useEffect } from "react";
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/router";
+import Loader from "@/components/Loader";
+import LeftNav from "@/components/LeftNav";
 
 const Home = () => {
     const router = useRouter();
     const { signOut, currentUser, isLoading } = useAuth();
 
     useEffect(() => {
-        if(!isLoading && !currentUser){
-            router.push("/login")
+        if (!isLoading && !currentUser) {
+            router.push("/login");
         }
-    }, [currentUser, isLoading])
+    }, [currentUser, isLoading]);
 
-    return (
-        <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-1/2 h-14 rounded-md cursor-pointer p-[3px] ml-5 mt-5">
-            <button
-                className="flex items-center justify-center text-white font-semibold bg-c1 w-full h-full rounded-md"
-                onClick={signOut}
-            >
-                Sign out
-            </button>
+    return !currentUser ? (
+        <Loader />
+    ) : (
+        <div className="bg-c1 flex h-[100vh]">
+            <div className="flex w-full shrink-0">
+                <LeftNav />
+                <div className="flex bg-c2 grow">
+                    <div>Sidebar</div>
+                    <div>Chat</div>
+                </div>
+            </div>
         </div>
     );
 };

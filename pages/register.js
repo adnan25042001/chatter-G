@@ -6,12 +6,14 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     FacebookAuthProvider,
-    createUserWithEmailAndPassword
+    createUserWithEmailAndPassword,
+    updateProfile,
 } from "firebase/auth";
 import { useRouter } from "next/router";
-import ToastMessage from "@/components/ToastMessage";
-import { toast } from "react-toastify";
-import { auth } from "@/firebase/firebase";
+import { auth, db } from "@/firebase/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { profileColors } from "@/utils/constants";
+import Loader from "@/components/Loader";
 
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
@@ -29,11 +31,32 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const username = e.target[0].value;
+        const displayName = e.target[0].value;
         const email = e.target[1].value;
         const password = e.target[2].value;
+        const colorIndex = Math.floor(Math.random() * profileColors.length);
+
         try {
-            const user = await createUserWithEmailAndPassword(auth, email, password)
+            const { user } = await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                displayName,
+                email,
+                color: profileColors[colorIndex],
+            });
+
+            await setDoc(doc(db, "userChats", user.uid), {});
+
+            await updateProfile(user, {
+                displayName,
+            });
+            console.log(user);
+            router.push("/");
         } catch (error) {
             console.log(error);
         }
@@ -56,7 +79,7 @@ const Register = () => {
     };
 
     return isLoading || (!isLoading && currentUser) ? (
-        "Loader..."
+        <Loader />
     ) : (
         <div className="h-[100vh] flex justify-center items-center bg-c1">
             <div className="flex items-center flex-col">
@@ -95,7 +118,10 @@ const Register = () => {
                     <span className="w-5 h-[1px] bg-c3"></span>
                 </div>
 
-                <form className="flex flex-col items-center gap-3 w-[500px] mt-5" onSubmit={handleSubmit}>
+                <form
+                    className="flex flex-col items-center gap-3 w-[500px] mt-5"
+                    onSubmit={handleSubmit}
+                >
                     <input
                         type="text"
                         placeholder="User Name"

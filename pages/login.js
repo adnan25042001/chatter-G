@@ -13,6 +13,7 @@ import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/router";
 import ToastMessage from "@/components/ToastMessage";
 import { toast } from "react-toastify";
+import Loader from "@/components/Loader";
 
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
@@ -37,6 +38,7 @@ const Login = () => {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             console.log(error);
+            alert("Wrong email or password");
         }
     };
 
@@ -77,7 +79,7 @@ const Login = () => {
     };
 
     return isLoading || (!isLoading && currentUser) ? (
-        "Loader..."
+        <Loader />
     ) : (
         <div className="h-[100vh] flex justify-center items-center bg-c1">
             <ToastMessage />
