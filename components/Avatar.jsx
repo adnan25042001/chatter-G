@@ -39,6 +39,18 @@ const Avatar = ({ size, user, onclick }) => {
             }}
             onclick={onclick}
         >
+            {user.isOnline && (
+                <>
+                    {size === "large" && (
+                        <span className="w-[10px] h-[10px] bg-green-500 rounded-full absolute bottom-[2px] right-[2px] z-10"></span>
+                    )}
+
+                    {size === "x-large" && (
+                        <span className="w-[10px] h-[10px] bg-green-500 rounded-full absolute bottom-[3px] right-[3px] z-10"></span>
+                    )}
+                </>
+            )}
+
             {user?.photoURL ? (
                 <div className={`${c} overflow-hidden rounded-full`}>
                     <Image

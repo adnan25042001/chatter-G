@@ -1,6 +1,6 @@
 import React from "react";
 
-const Icon = ({size, icon, onClick, className}) => {
+const Icon = ({ size, icon, onClick, className }) => {
     const c =
         size === "small"
             ? "w-8 h-8"
