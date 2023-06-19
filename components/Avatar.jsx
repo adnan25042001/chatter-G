@@ -37,7 +37,7 @@ const Avatar = ({ size, user, onclick }) => {
             style={{
                 backgroundColor: user?.color,
             }}
-            onclick={onclick}
+            onClick={onclick}
         >
             {user.isOnline && (
                 <>
