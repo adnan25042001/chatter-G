@@ -82,7 +82,7 @@ const Chats = () => {
 
     const handleSelect = (user, selectedChatId) => {
         setSelectedChat(user);
-        dispatch({ type: "", payload: user });
+        dispatch({ type: "CHANGE_USER", payload: user });
     };
 
     return (
