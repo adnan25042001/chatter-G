@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/authContext";
 import { useChatContext } from "@/context/chatContext";
-import { db } from "@/firebase/firebase";
+import { db, storage } from "@/firebase/firebase";
 import {
     Timestamp,
     arrayUnion,
@@ -8,12 +8,20 @@ import {
     serverTimestamp,
     updateDoc,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import React from "react";
 import { TbSend } from "react-icons/tb";
 import { v4 as uuid } from "uuid";
 
 const Composebar = () => {
-    const { inputText, setInputText, data } = useChatContext();
+    const {
+        inputText,
+        setInputText,
+        data,
+        attachment,
+        setAttachment,
+        setAttachmentPreview,
+    } = useChatContext();
     const { currentUser } = useAuth();
 
     const handleTyping = (e) => {
@@ -21,23 +29,69 @@ const Composebar = () => {
     };
 
     const onKeyUp = (e) => {
-        if (e.key === "Enter" && inputText.trim().length > 0) {
+        if (e.key === "Enter" && (inputText.trim().length > 0 || attachment)) {
             handleSend();
         }
     };
 
     const handleSend = async () => {
-        await updateDoc(doc(db, "chats", data.chatId), {
-            messages: arrayUnion({
-                id: uuid(),
-                text: inputText,
-                sender: currentUser.uid,
-                date: Timestamp.now(),
-                read: false,
-            }),
-        });
+        if (attachment) {
+            // file uploading logic
+            const storageRef = ref(storage, uuid());
+            const uploadTask = uploadBytesResumable(storageRef, attachment);
+
+            uploadTask.on(
+                "state_changed",
+                (snapshot) => {
+                    const progress =
+                        (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log("Upload is " + progress + "% done");
+                    switch (snapshot.state) {
+                        case "paused":
+                            console.log("Upload is paused");
+                            break;
+                        case "running":
+                            console.log("Upload is running");
+                            break;
+                    }
+                },
+                (error) => {
+                    console.error(error);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then(
+                        async (downloadURL) => {
+                            await updateDoc(doc(db, "chats", data.chatId), {
+                                messages: arrayUnion({
+                                    id: uuid(),
+                                    text: inputText,
+                                    sender: currentUser.uid,
+                                    date: Timestamp.now(),
+                                    read: false,
+                                    img: downloadURL,
+                                }),
+                            });
+                        }
+                    );
+                }
+            );
+        } else {
+            await updateDoc(doc(db, "chats", data.chatId), {
+                messages: arrayUnion({
+                    id: uuid(),
+                    text: inputText,
+                    sender: currentUser.uid,
+                    date: Timestamp.now(),
+                    read: false,
+                }),
+            });
+        }
 
         let msg = { text: inputText };
+
+        if (attachment) {
+            msg.img = true;
+        }
 
         await updateDoc(doc(db, "userChats", currentUser.uid), {
             [data.chatId + ".lastMessage"]: msg,
@@ -50,6 +104,8 @@ const Composebar = () => {
         });
 
         setInputText("");
+        setAttachment(null);
+        setAttachmentPreview(null);
     };
 
     return (

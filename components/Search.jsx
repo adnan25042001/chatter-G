@@ -1,5 +1,14 @@
 import { db } from "@/firebase/firebase";
-import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    setDoc,
+    updateDoc,
+    where,
+} from "firebase/firestore";
 import React, { useState } from "react";
 import { RiSearch2Line } from "react-icons/ri";
 import Avatar from "./Avatar";

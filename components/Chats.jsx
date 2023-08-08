@@ -43,7 +43,6 @@ const Chats = () => {
                 (doc) => {
                     if (doc.exists()) {
                         const data = doc.data();
-                        console.log(data)
                         setChats(data);
                         if (
                             !isBlockExecutedRef.current &&
