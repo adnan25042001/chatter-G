@@ -4,16 +4,19 @@ import Avatar from "./Avatar";
 import { useChatContext } from "@/context/chatContext";
 import Image from "next/image";
 import ImageViewer from "react-simple-image-viewer";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, doc, getDoc, updateDoc } from "firebase/firestore";
 import { formateDate, wrapEmojisInHtmlTag } from "@/utils/helpers";
 import Icon from "./Icon";
 import { GoChevronDown } from "react-icons/go";
 import MessageMenu from "./MessageMenu";
 import DeleteMessagePopup from "./popup/DeleteMessagePopup";
+import { db } from "@/firebase/firebase";
+import { DELETED_FOR_EVERYONE, DELETED_FOR_ME } from "@/utils/constants";
 
 const Message = ({ message }) => {
     const { currentUser } = useAuth();
-    const { users, data, imageViewer, setImageViewer } = useChatContext();
+    const { users, data, imageViewer, setImageViewer, setEditMsg } =
+        useChatContext();
 
     const [showMenu, setShowMenu] = useState(false);
     const [showDeletePopup, setShowDeletePopup] = useState(false);
@@ -27,15 +30,55 @@ const Message = ({ message }) => {
 
     const date = timeStamp.toDate();
 
+    const deletePopupHandler = () => {
+        setShowMenu(false);
+        setShowDeletePopup(true);
+    };
+
+    const deleteMessage = async (action) => {
+        try {
+            const messageId = message.id;
+            const chatRef = doc(db, "chats", data.chatId);
+
+            const chatDoc = await getDoc(chatRef);
+
+            const updatedMessages = chatDoc.data().messages.map((message) => {
+                if (message.id === messageId) {
+                    if (action === DELETED_FOR_ME) {
+                        message.deletedInfo = {
+                            [currentUser.uid]: DELETED_FOR_ME,
+                        };
+                    }
+
+                    if (action === DELETED_FOR_EVERYONE) {
+                        message.deletedInfo = {
+                            deletedForEveryone: true,
+                        };
+                    }
+                }
+                return message;
+            });
+
+            await updateDoc(chatRef, { messages: updatedMessages });
+
+            setShowDeletePopup(false);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return (
         <div className={`mb-5 max-w-[75%] ${self ? "self-end" : ""}`}>
-            <DeleteMessagePopup
-                onHide={() => setShowDeletePopup(false)}
-                className="DeleteMessagePopup"
-                noHeader={true}
-                shortHeight={true}
-                self={self}
-            />
+            {showDeletePopup && (
+                <DeleteMessagePopup
+                    onHide={() => setShowDeletePopup(false)}
+                    className="DeleteMessagePopup"
+                    noHeader={true}
+                    shortHeight={true}
+                    self={self}
+                    deleteMessage={deleteMessage}
+                />
+            )}
             <div
                 className={`flex items-center gap-3 mb-1 ${
                     self ? "justify-start flex-row-reverse" : ""
@@ -110,6 +153,8 @@ const Message = ({ message }) => {
                                 self={self}
                                 setShowMenu={setShowMenu}
                                 showMenu={showMenu}
+                                deletePopupHandler={deletePopupHandler}
+                                setEditMsg={() => setEditMsg(message)}
                             />
                         )}
                     </div>

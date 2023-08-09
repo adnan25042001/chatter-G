@@ -3,8 +3,11 @@ import { db } from "@/firebase/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import Message from "./Message";
+import { DELETED_FOR_ME } from "@/utils/constants";
+import { useAuth } from "@/context/authContext";
 
 const Messages = () => {
+    const { currentUser } = useAuth();
     const [messages, setMessages] = useState([]);
     const { data } = useChatContext();
     const ref = useRef();
@@ -13,18 +16,33 @@ const Messages = () => {
             if (doc.exists()) {
                 setMessages(doc.data().messages);
             }
+            setTimeout(() => {
+                scrollToBottom();
+            }, 0);
         });
         return () => unsub();
     }, [data.chatId]);
+
+    const scrollToBottom = () => {
+        const chatContainer = ref.current;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
 
     return (
         <div
             ref={ref}
             className="grow p-5 overflow-auto scrollbar flex flex-col"
         >
-            {messages.map((msg) => (
-                <Message message={msg} key={msg.id} />
-            ))}
+            {messages &&
+                messages
+                    ?.filter((msg) => {
+                        return (
+                            msg?.deletedInfo?.[currentUser.uid] !==
+                                DELETED_FOR_ME &&
+                            !msg?.deletedInfo?.deletedForEveryone
+                        );
+                    })
+                    ?.map((msg) => <Message message={msg} key={msg.id} />)}
         </div>
     );
 };
