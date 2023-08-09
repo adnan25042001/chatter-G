@@ -9,12 +9,13 @@ import { useAuth } from "@/context/authContext";
 const Messages = () => {
     const { currentUser } = useAuth();
     const [messages, setMessages] = useState([]);
-    const { data } = useChatContext();
+    const { data, setIsTyping } = useChatContext();
     const ref = useRef();
     useEffect(() => {
         const unsub = onSnapshot(doc(db, "chats", data.chatId), (doc) => {
             if (doc.exists()) {
                 setMessages(doc.data().messages);
+                setIsTyping(doc.data.typing[data.user.uid])
             }
             setTimeout(() => {
                 scrollToBottom();
