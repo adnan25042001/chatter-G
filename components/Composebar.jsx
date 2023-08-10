@@ -46,11 +46,11 @@ const Composebar = () => {
 
         typingTimeout = setTimeout(async () => {
             await updateDoc(doc(db, "chats", data.chatId), {
-                [`typing.${currentUser.uid}`]: true,
+                [`typing.${currentUser.uid}`]: false,
             });
 
             typingTimeout = null;
-        }, 500);
+        }, 1000);
     };
 
     const onKeyUp = (e) => {
