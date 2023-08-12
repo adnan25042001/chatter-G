@@ -88,7 +88,7 @@ const UserPopup = (props) => {
                     {users &&
                         Object.values(users).map((user) => (
                             <div
-                                key={user.uid}
+                                key={user?.uid}
                                 className="flex items-center gap-4 rounded-xl hover:bg-c5 py-2 px-4 cursor-pointer"
                                 onClick={() => handleSelect(user)}
                             >

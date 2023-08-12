@@ -9,10 +9,8 @@ import { useChatContext } from "@/context/chatContext";
 
 const Home = () => {
     const router = useRouter();
-    const { signOut, currentUser, isLoading } = useAuth();
+    const { currentUser, isLoading } = useAuth();
     const { data } = useChatContext();
-
-    console.log(process.env.NEXT_PUBLIC_API_KEY);
 
     useEffect(() => {
         if (!isLoading && !currentUser) {
