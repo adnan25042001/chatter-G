@@ -40,7 +40,8 @@ const Messages = () => {
                         return (
                             msg?.deletedInfo?.[currentUser.uid] !==
                                 DELETED_FOR_ME &&
-                            !msg?.deletedInfo?.deletedForEveryone
+                            !msg?.deletedInfo?.deletedForEveryone &&
+                            !msg.deleteChatInfo?.[currentUser.uid]
                         );
                     })
                     ?.map((msg) => <Message message={msg} key={msg.id} />)}

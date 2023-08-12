@@ -4,6 +4,7 @@ import { useAuth } from "@/context/authContext";
 import { useChatContext } from "@/context/chatContext";
 import Avatar from "../Avatar";
 import {
+    deleteField,
     doc,
     getDoc,
     serverTimestamp,
@@ -67,6 +68,9 @@ const UserPopup = (props) => {
                 });
             } else {
                 // Chat document exists
+                await updateDoc(doc(db, "userChats", currentUser.uid), {
+                    [combinedId + ".chatDeleted"]: deleteField(),
+                });
             }
 
             dispatch({ type: "CHANGE_USER", payload: user });

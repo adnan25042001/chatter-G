@@ -108,9 +108,9 @@ const Chats = () => {
                                 const user = users[firstChat?.userInfo?.uid];
 
                                 const chatId =
-                                    currentUser.uid > user.uid
-                                        ? currentUser.uid + user.uid
-                                        : user.uid + currentUser.uid;
+                                    currentUser?.uid > user?.uid
+                                        ? currentUser?.uid + user?.uid
+                                        : user?.uid + currentUser?.uid;
 
                                 handleSelect(user);
                                 readChat(chatId);

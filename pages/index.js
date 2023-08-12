@@ -12,6 +12,8 @@ const Home = () => {
     const { signOut, currentUser, isLoading } = useAuth();
     const { data } = useChatContext();
 
+    console.log(process.env.NEXT_PUBLIC_API_KEY);
+
     useEffect(() => {
         if (!isLoading && !currentUser) {
             router.push("/login");
