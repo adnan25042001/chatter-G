@@ -25,11 +25,20 @@ To clone this project on your local machine and run it, follow these steps:
 
 - Open your terminal.
 - Change the current working directory to the location where you want the cloned directory.
-- Type ```https://github.com/adnan25042001/chatter-G.git```
+- Type
+```
+https://github.com/adnan25042001/chatter-G.git
+```
 - Press Enter to create your local clone.
 - Navigate into the cloned repository.
-- Install the dependencies by running ```npm install```.
-- Start the development server by running ```npm run dev```.
+- Install the dependencies by running
+```
+npm install
+```
+- Start the development server by running
+```
+npm run dev
+```
 - Open http://localhost:3000 with your browser to see the result.
 
 ## Feedback
